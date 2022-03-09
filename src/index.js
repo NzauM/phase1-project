@@ -10,11 +10,12 @@ function testJs(){
         .then((resp)=> resp.json())
         .then((data)=>{
             // console.log(data.data.memes)
-            renderMemes(data.data.memes)            
+            renderMemes(data.data.memes)           
         })
 }
 
 const memesContainer = document.getElementById('memesContainer')
+const likedMemesCont = document.getElementById('favoriteMemesContainer')
 
 const likedMems=[]
 
@@ -41,12 +42,12 @@ function pushtoLikedMems(memeId){
     favoriteBttn.id=memeId
     if(likedMems.includes(memeId)){
         // console.log(memeId)
-        favoriteBttn.textContent = "Ishaclickiwa"
-        favoriteBttn.classList.add('disabled')
-        favoriteBttn.disabled = true
+        // favoriteBttn.textContent = "Ishaclickiwa"
+        // favoriteBttn.classList.add('disabled')
+        // favoriteBttn.disabled = true
     }
     else{
-        favoriteBttn.textContent = "Bado haijaclickiwa"
+        // favoriteBttn.textContent = "Bado haijaclickiwa"
     }
 }
 
@@ -62,14 +63,17 @@ function formatButtons(memeId,favoriteBtn){
     // alert("tuko hapa")
     const favoriteBttn = favoriteBtn
     favoriteBttn.textContent = "Favorite"
-    favoriteBttn.classList.add('btn-danger')
     favoriteBttn.id=memeId
     if(likedMems.includes(memeId)){
         // alert("Allaaaahhhh")
         favoriteBttn.textContent = "Ishaclickiwa"
+        favoriteBttn.classList.add('disabled','btn-primary')
+        favoriteBttn.disabled = true
+
     }
     else{
         favoriteBttn.textContent = "Bado haijaclickiwa"
+        favoriteBttn.classList.add('btn-danger')
     }
 }
 
@@ -78,6 +82,8 @@ function renderMemes(data, container=memesContainer){
     console.log(container)
     const memeContainer = container
     const allmemes = data
+    console.log("All memes we are receiving")
+    console.log(allmemes)
             allmemes.map((meme)=>{
                 // formatButton(meme.id)
                 const memeCont = document.createElement('div')
@@ -99,6 +105,16 @@ function renderMemes(data, container=memesContainer){
                 favoriteBtn.onclick = function(){
                     favoriteAMeme(meme)
                 }
+                // if(memeContainer === likedMemesCont){
+                //     console.log("Imeingia")
+                //     const commentBtn = document.createElement('button')
+                //     commentBtn.textContent = "Comment"
+                //     commentBtn.classList.add('btn-primary')
+                //     memeContainer.appendChild(commentBtn)
+                //     commentBtn.onclick = function(){
+
+                //     }
+                // }
             })
 }
 
@@ -120,12 +136,13 @@ function favoriteAMeme(meme){
 
 function showFavMemes(){
     const allMemesCont = document.getElementById('favoriteMemesContainer')
-    allMemesCont.style.display = "block";
+    // allMemesCont.style.display = "block";
     const favMemesCont = document.getElementById('memesContainer')
     const toggleBtn = document.getElementById('toggleMemes')
     if(favMemesCont.style.display === "none"){
         allMemesCont.style.display = "none"
         favMemesCont.style.display = "block"
+        document.getElementById("searchBar").style.display = "inline"
         toggleBtn.textContent = "Show Favorite Memes"
         getFaveMemes()
     }
@@ -133,6 +150,7 @@ function showFavMemes(){
         allMemesCont.style.display = "block"
         favMemesCont.style.display = "none"
         toggleBtn.textContent = "Show All Memes"
+        document.getElementById("searchBar").style.display = "none"
     }
 }
 
@@ -142,6 +160,25 @@ function getFaveMemes(){
         .then((resp)=>resp.json())
         .then((data)=>{
                 renderMemes(data,likedMemesCont)
+        })
+}
+
+function searchMemes(){
+    const searchTerm = document.getElementById("searchName").value.toLowerCase()
+    fetch("https://api.imgflip.com/get_memes")
+        .then((resp)=>resp.json())
+        .then((data)=>{
+            const memes = data.data.memes
+            const searchedMemes = []
+            memes.map((meme)=>{
+                const memeName = (meme.name).toLowerCase();
+                if(memeName.includes(searchTerm)){
+                    searchedMemes.push(meme)
+                }            
+                // renderMemes(searchedMemes)
+            })
+            memesContainer.innerHTML = ""
+            renderMemes(searchedMemes)
         })
 }
 
